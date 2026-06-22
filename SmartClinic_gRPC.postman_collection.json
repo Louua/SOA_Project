@@ -1,0 +1,223 @@
+{
+	"info": {
+		"_postman_id": "f5a0bc0c-b26a-4d2c-9828-e4b2d18ff06a",
+		"name": "SmartClinic gRPC 🛰️",
+		"description": "Collection Postman pour tester directement les APIs gRPC de chaque microservice.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Patient-Service (Port 50051)",
+			"item": [
+				{
+					"name": "CreatePatient",
+					"request": {
+						"url": {
+							"raw": "localhost:50051",
+							"host": [
+								"localhost"
+							],
+							"port": "50051"
+						},
+						"mode": "grpc",
+						"grpcInfo": {
+							"service": "clinic.PatientService",
+							"method": "CreatePatient"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Sarah Connor\",\n  \"medical_history\": \"Légère anémie, exposition chronique au stress\"\n}"
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetPatientById",
+					"request": {
+						"url": {
+							"raw": "localhost:50051",
+							"host": [
+								"localhost"
+							],
+							"port": "50051"
+						},
+						"mode": "grpc",
+						"grpcInfo": {
+							"service": "clinic.PatientService",
+							"method": "GetPatientById"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"p1\"\n}"
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllPatients",
+					"request": {
+						"url": {
+							"raw": "localhost:50051",
+							"host": [
+								"localhost"
+							],
+							"port": "50051"
+						},
+						"mode": "grpc",
+						"grpcInfo": {
+							"service": "clinic.PatientService",
+							"method": "GetAllPatients"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdatePatientVitals",
+					"request": {
+						"url": {
+							"raw": "localhost:50051",
+							"host": [
+								"localhost"
+							],
+							"port": "50051"
+						},
+						"mode": "grpc",
+						"grpcInfo": {
+							"service": "clinic.PatientService",
+							"method": "UpdatePatientVitals"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient_id\": \"p1\",\n  \"heart_rate\": 135,\n  \"temperature\": 39.5\n}"
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Appointment-Service (Port 50052)",
+			"item": [
+				{
+					"name": "CreateAppointment",
+					"request": {
+						"url": {
+							"raw": "localhost:50052",
+							"host": [
+								"localhost"
+							],
+							"port": "50052"
+						},
+						"mode": "grpc",
+						"grpcInfo": {
+							"service": "clinic.AppointmentService",
+							"method": "CreateAppointment"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"doctor_id\": \"d1\",\n  \"patient_id\": \"p1\",\n  \"date\": \"2026-06-22\",\n  \"time\": \"11:15\"\n}"
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAppointmentsByDoctor",
+					"request": {
+						"url": {
+							"raw": "localhost:50052",
+							"host": [
+								"localhost"
+							],
+							"port": "50052"
+						},
+						"mode": "grpc",
+						"grpcInfo": {
+							"service": "clinic.AppointmentService",
+							"method": "GetAppointmentsByDoctor"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"doctor_id\": \"d1\"\n}"
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllAppointments",
+					"request": {
+						"url": {
+							"raw": "localhost:50052",
+							"host": [
+								"localhost"
+							],
+							"port": "50052"
+						},
+						"mode": "grpc",
+						"grpcInfo": {
+							"service": "clinic.AppointmentService",
+							"method": "GetAllAppointments"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CancelAppointment",
+					"request": {
+						"url": {
+							"raw": "localhost:50052",
+							"host": [
+								"localhost"
+							],
+							"port": "50052"
+						},
+						"mode": "grpc",
+						"grpcInfo": {
+							"service": "clinic.AppointmentService",
+							"method": "CancelAppointment"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"a1\"\n}"
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Emergency-Service (Port 50053)",
+			"item": [
+				{
+					"name": "GetActiveAlerts",
+					"request": {
+						"url": {
+							"raw": "localhost:50053",
+							"host": [
+								"localhost"
+							],
+							"port": "50053"
+						},
+						"mode": "grpc",
+						"grpcInfo": {
+							"service": "clinic.EmergencyService",
+							"method": "GetActiveAlerts"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

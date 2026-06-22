@@ -1,0 +1,9 @@
+node_modules/
+*.db
+*.log
+.DS_Store
+.gemini/
+dist/
+build/
+node_modules
+node_modules

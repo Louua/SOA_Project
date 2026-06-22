@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartClinic - Console de Gestion Hospitalière Inteligente</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- ChartJS CDN for Vitals Monitor -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- FontAwesome for Premium Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: rgba(17, 24, 39, 0.7);
+      --card-hover-bg: rgba(31, 41, 55, 0.85);
+      --border-color: rgba(255, 255, 255, 0.06);
+      --text-color: #f3f4f6;
+      --text-muted: #9ca3af;
+      --primary: #06b6d4;
+      --primary-glow: rgba(6, 182, 212, 0.4);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.4);
+      --accent: #8b5cf6;
+      --accent-glow: rgba(139, 92, 246, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-color);
+      background-image: 
+        radial-gradient(circle at 0% 0%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* Header styling */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1.5rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-icon {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      width: 50px;
+      height: 50px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: white;
+      box-shadow: 0 8px 24px var(--primary-glow);
+      animation: heartbeat 2s infinite ease-in-out;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      30% { transform: scale(1.06); }
+      45% { transform: scale(0.97); }
+      60% { transform: scale(1.04); }
+    }
+
+    .brand-text h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-text p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.1rem;
+    }
+
+    .system-status {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .status-badge {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: var(--success);
+      padding: 0.6rem 1.2rem;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.05);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--success);
+      animation: pulse 1.6s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.85); opacity: 0.5; }
+      50% { transform: scale(1.25); opacity: 1; }
+      100% { transform: scale(0.85); opacity: 0.5; }
+    }
+
+    /* Grid Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 1200px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: transparent;
+      transition: background 0.3s;
+    }
+
+    .card:hover {
+      background: var(--card-hover-bg);
+      transform: translateY(-3px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .card.primary-edge::before {
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+
+    .card.danger-edge::before {
+      background: linear-gradient(90deg, var(--danger), var(--warning));
+    }
+
+    .card-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.8rem;
+    }
+
+    .card-title span {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .card-title i {
+      color: var(--primary);
+    }
+
+    /* Forms */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: rgba(10, 15, 30, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      color: var(--text-color);
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: all 0.25s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+      background: rgba(10, 15, 30, 0.9);
+    }
+
+    /* Buttons */
+    .btn {
+      background: linear-gradient(135deg, var(--primary), #0891b2);
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.25s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      box-shadow: 0 4px 15px rgba(6, 182, 212, 0.2);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(6, 182, 212, 0.35);
+      opacity: 0.95;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-accent {
+      background: linear-gradient(135deg, var(--accent), #7c3aed);
+      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+    }
+
+    .btn-accent:hover {
+      box-shadow: 0 6px 20px rgba(139, 92, 246, 0.35);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      box-shadow: none;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: none;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Quick Vitals Presets */
+    .vitals-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .preset-badge {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .preset-badge:hover {
+      background: rgba(6, 182, 212, 0.12);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Lists and Cards Inside Lists */
+    .scroll-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .scroll-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .scroll-list::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 10px;
+    }
+
+    .scroll-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    /* Inner Cards */
+    .inner-card {
+      background: rgba(10, 15, 30, 0.4);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s;
+    }
+
+    .inner-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      background: rgba(10, 15, 30, 0.6);
+    }
+
+    .inner-info h4 {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .inner-info p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .vitals-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .vital-pill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .vital-pill.good {
+      color: var(--success);
+      border-color: rgba(16, 185, 129, 0.15);
+      background: rgba(16, 185, 129, 0.04);
+    }
+
+    .vital-pill.warn {
+      color: var(--warning);
+      border-color: rgba(245, 158, 11, 0.15);
+      background: rgba(245, 158, 11, 0.04);
+    }
+
+    .vital-pill.alert {
+      color: var(--danger);
+      border-color: rgba(239, 68, 68, 0.15);
+      background: rgba(239, 68, 68, 0.04);
+      animation: alertGlow 1.5s infinite alternate;
+    }
+
+    @keyframes alertGlow {
+      from { box-shadow: 0 0 2px rgba(239, 68, 68, 0.1); }
+      to { box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+    }
+
+    /* Alert cards (RxDB) */
+    .danger-card {
+      background: rgba(239, 68, 68, 0.03);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      border-left: 4px solid var(--danger);
+      border-radius: 16px;
+      padding: 1.25rem;
+      position: relative;
+      animation: alertSlideIn 0.3s ease-out;
+    }
+
+    .danger-card.warning-level {
+      background: rgba(245, 158, 11, 0.03);
+      border: 1px solid rgba(245, 158, 11, 0.15);
+      border-left: 4px solid var(--warning);
+    }
+
+    @keyframes alertSlideIn {
+      from { transform: translateX(20px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .danger-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .danger-title {
+      font-weight: 700;
+      color: var(--danger);
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .danger-card.warning-level .danger-title {
+      color: var(--warning);
+    }
+
+    .danger-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .danger-body {
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    /* Console logs response box */
+    .console-box {
+      margin-top: 1rem;
+      background: #05070c;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 1rem;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.8rem;
+      color: #38bdf8;
+      max-height: 180px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      display: none;
+    }
+
+    /* Chart Container */
+    .chart-container {
+      position: relative;
+      height: 220px;
+      width: 100%;
+      margin-top: 1.5rem;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: rgba(239, 68, 68, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 1000;
+      transform: translateY(150%);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+    }
+
+    /* Layout column wrapper */
+    .layout-col {
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <div class="logo-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+        <div class="brand-text">
+          <h1>SmartClinic Console</h1>
+          <p>Gestion en Temps Réel • Architecture Microservices Node.js</p>
+        </div>
+      </div>
+      <div class="system-status">
+        <div class="status-badge">
+          <div class="status-dot"></div>
+          API Gateway Connectée
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Dashboard Grid -->
+    <div class="dashboard-grid">
+
+      <!-- LEFT COLUMN -->
+      <div class="layout-col">
+        
+        <!-- CARD: DOCTOR DASHBOARD (GraphQL Query) -->
+        <div class="card primary-edge">
+          <div class="card-title">
+            <span><i class="fa-solid fa-user-doctor"></i> Planning & Fiches Patients (GraphQL)</span>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <select id="dashDoctor" style="padding: 0.4rem 1rem 0.4rem 1rem; border-radius: 8px; width: auto; font-size: 0.85rem;">
+                <option value="d1">Dr. Gregory House</option>
+                <option value="d2">Dr. Meredith Grey</option>
+              </select>
+              <button class="btn btn-secondary" style="padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="fetchDoctorDashboard()">
+                <i class="fa-solid fa-rotate"></i> Charger
+              </button>
+            </div>
+          </div>
+          
+          <div class="appointments-list scroll-list" id="apptList">
+            <!-- Loaded dynamically -->
+          </div>
+        </div>
+
+        <!-- CARD: REAL-TIME MONITORING GRAPH -->
+        <div class="card primary-edge">
+          <div class="card-title">
+            <span><i class="fa-solid fa-chart-line"></i> Monitorage Graphique des Constantes (Patient Actif)</span>
+            <span id="activePatientName" style="font-size: 0.85rem; color: var(--primary); font-weight: 500;">Sélectionnez un patient</span>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted)">Historique des constantes vitales envoyées pour le patient actif.</p>
+          <div class="chart-container">
+            <canvas id="vitalsChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="layout-col">
+
+        <!-- CARD: EMERGENCY MONITOR (Kafka + RxDB) -->
+        <div class="card danger-edge">
+          <div class="card-title">
+            <span><i class="fa-solid fa-triangle-exclamation" style="color: var(--danger)"></i> Alertes d'Urgences (RxDB / Kafka)</span>
+            <button class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;" onclick="fetchActiveAlerts()">
+              <i class="fa-solid fa-arrows-rotate"></i> Actualiser
+            </button>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem">
+            Détecté en direct par l'Emergency-Service à l'écoute du flux événementiel.
+          </p>
+          <div class="alerts-list scroll-list" id="alertsList">
+            <!-- Loaded dynamically -->
+          </div>
+        </div>
+
+        <!-- CARD: VITALS MUTATOR (GraphQL Mutation) -->
+        <div class="card">
+          <div class="card-title">
+            <span><i class="fa-solid fa-gauge-high"></i> Injecter des Constantes (Mutation)</span>
+          </div>
+          <form id="vitalsForm">
+            <div class="form-group">
+              <label for="vPatientId">Patient</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-hospital-user"></i>
+                <input type="text" id="vPatientId" required value="p1">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="vHeartRate">Pouls (bpm)</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-heartbeat"></i>
+                  <input type="number" id="vHeartRate" required value="75">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="vTemperature">Température (°C)</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-thermometer-half"></i>
+                  <input type="number" step="0.1" id="vTemperature" required value="37.0">
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-accent" style="width: 100%;">
+              <i class="fa-solid fa-paper-plane"></i> Mettre à jour les constantes
+            </button>
+
+            <div class="vitals-presets">
+              <span class="preset-badge" onclick="setVitalsPreset(75, 37.0)">Normal (75 bpm, 37°C)</span>
+              <span class="preset-badge" onclick="setVitalsPreset(135, 37.2)">Tachycardie (135 bpm)</span>
+              <span class="preset-badge" onclick="setVitalsPreset(45, 36.2)">Bradycardie (45 bpm)</span>
+              <span class="preset-badge" onclick="setVitalsPreset(95, 39.8)">Fièvre Élevée (39.8°C)</span>
+            </div>
+          </form>
+          <div id="vitalsResponse" class="console-box"></div>
+        </div>
+
+        <!-- CARD: ADMIN & SCHEDULING (REST API) -->
+        <div class="card">
+          <div class="card-title">
+            <span><i class="fa-solid fa-folder-plus"></i> Admissions & Consultations (REST)</span>
+          </div>
+          
+          <h3 style="font-size: 0.9rem; color: var(--primary); text-transform: uppercase; margin-bottom: 0.75rem;">Nouveau Patient</h3>
+          <form id="patientForm" style="margin-bottom: 1.5rem;">
+            <div class="form-group">
+              <div class="input-wrapper">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" id="pName" placeholder="Nom Complet" required value="Thomas Anderson">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="input-wrapper">
+                <i class="fa-solid fa-notes-medical"></i>
+                <input type="text" id="pHistory" placeholder="Antécédents médicaux" value="Aucun">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-secondary" style="width: 100%;">
+              <i class="fa-solid fa-user-plus"></i> Inscrire le patient
+            </button>
+          </form>
+
+          <h3 style="font-size: 0.9rem; color: var(--primary); text-transform: uppercase; margin-bottom: 0.75rem;">Planifier Rendez-vous</h3>
+          <form id="apptForm">
+            <div class="form-row">
+              <div class="form-group">
+                <select id="apptDoctor" style="padding-left: 1rem;">
+                  <option value="d1">Dr. Gregory House</option>
+                  <option value="d2">Dr. Meredith Grey</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-id-card"></i>
+                  <input type="text" id="apptPatient" placeholder="ID Patient" required value="p1">
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <input type="date" id="apptDate" required style="padding-left: 1rem;">
+              </div>
+              <div class="form-group">
+                <input type="time" id="apptTime" required value="10:00" style="padding-left: 1rem;">
+              </div>
+            </div>
+            <button type="submit" class="btn" style="width: 100%;">
+              <i class="fa-solid fa-calendar-check"></i> Créer la réservation
+            </button>
+          </form>
+          <div id="restResponse" class="console-box"></div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Realtime Notification Toast -->
+  <div class="toast" id="alertToast">
+    <i class="fa-solid fa-circle-exclamation" style="font-size: 1.5rem;"></i>
+    <div>
+      <h4 style="font-weight: 700; font-size: 0.95rem;">ALERTE CRITIQUE</h4>
+      <p id="toastMessage" style="font-size: 0.8rem; margin-top: 0.1rem;"></p>
+    </div>
+  </div>
+
+  <script>
+    // Initialize date field to today
+    document.getElementById('apptDate').value = new Date().toISOString().split('T')[0];
+
+    // Chart.js Setup
+    const ctx = document.getElementById('vitalsChart').getContext('2d');
+    const vitalsChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: 'Pouls (bpm)',
+            borderColor: '#06b6d4',
+            backgroundColor: 'rgba(6, 182, 212, 0.1)',
+            data: [],
+            borderWidth: 2,
+            yAxisID: 'y-pulse',
+            tension: 0.3,
+            fill: true
+          },
+          {
+            label: 'Température (°C)',
+            borderColor: '#8b5cf6',
+            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            data: [],
+            borderWidth: 2,
+            yAxisID: 'y-temp',
+            tension: 0.3,
+            fill: true
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+            ticks: { color: '#9ca3af' }
+          },
+          'y-pulse': {
+            type: 'linear',
+            position: 'left',
+            min: 40,
+            max: 160,
+            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+            ticks: { color: '#06b6d4' },
+            title: { display: true, text: 'bpm', color: '#06b6d4' }
+          },
+          'y-temp': {
+            type: 'linear',
+            position: 'right',
+            min: 34,
+            max: 42,
+            grid: { drawOnChartArea: false },
+            ticks: { color: '#8b5cf6' },
+            title: { display: true, text: '°C', color: '#8b5cf6' }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: { color: '#f3f4f6' }
+          }
+        }
+      }
+    });
+
+    const activePatientVitalsData = {};
+
+    function selectPatientForChart(id, name) {
+      document.getElementById('activePatientName').textContent = `${name} (${id})`;
+      document.getElementById('vPatientId').value = id;
+      document.getElementById('apptPatient').value = id;
+      
+      // Update chart labels and data
+      const history = activePatientVitalsData[id] || [];
+      vitalsChart.data.labels = history.map(h => h.time);
+      vitalsChart.data.datasets[0].data = history.map(h => h.pulse);
+      vitalsChart.data.datasets[1].data = history.map(h => h.temp);
+      vitalsChart.update();
+    }
+
+    function addVitalsToHistory(id, pulse, temp) {
+      if (!activePatientVitalsData[id]) {
+        activePatientVitalsData[id] = [];
+      }
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      activePatientVitalsData[id].push({ time: timeStr, pulse, temp });
+      
+      // Keep only last 10 points
+      if (activePatientVitalsData[id].length > 10) {
+        activePatientVitalsData[id].shift();
+      }
+
+      // If active patient is the one being updated, refresh chart
+      const activeId = document.getElementById('vPatientId').value;
+      if (activeId === id) {
+        const history = activePatientVitalsData[id];
+        vitalsChart.data.labels = history.map(h => h.time);
+        vitalsChart.data.datasets[0].data = history.map(h => h.pulse);
+        vitalsChart.data.datasets[1].data = history.map(h => h.temp);
+        vitalsChart.update();
+      }
+    }
+
+    function setVitalsPreset(pulse, temp) {
+      document.getElementById('vHeartRate').value = pulse;
+      document.getElementById('vTemperature').value = temp;
+    }
+
+    function showResponse(elementId, data) {
+      const box = document.getElementById(elementId);
+      box.style.display = 'block';
+      box.textContent = JSON.stringify(data, null, 2);
+    }
+
+    // --- API OPERATIONS ---
+
+    // 1. Create Patient (REST)
+    document.getElementById('patientForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('pName').value;
+      const medical_history = document.getElementById('pHistory').value;
+      try {
+        const res = await fetch('/api/patients', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, medical_history })
+        });
+        const data = await res.json();
+        showResponse('restResponse', data);
+        if (data.id) {
+          selectPatientForChart(data.id, data.name);
+          alert(`Patient enregistré avec succès! ID: ${data.id}`);
+        }
+      } catch (err) {
+        showResponse('restResponse', { error: err.message });
+      }
+    });
+
+    // 2. Schedule Appointment (REST)
+    document.getElementById('apptForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const doctor_id = document.getElementById('apptDoctor').value;
+      const patient_id = document.getElementById('apptPatient').value;
+      const date = document.getElementById('apptDate').value;
+      const time = document.getElementById('apptTime').value;
+      try {
+        const res = await fetch('/api/appointments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ doctor_id, patient_id, date, time })
+        });
+        const data = await res.json();
+        showResponse('restResponse', data);
+        fetchDoctorDashboard();
+      } catch (err) {
+        showResponse('restResponse', { error: err.message });
+      }
+    });
+
+    // 3. Update Patient Vitals (GraphQL Mutation)
+    document.getElementById('vitalsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const patientId = document.getElementById('vPatientId').value;
+      const heartRate = parseInt(document.getElementById('vHeartRate').value);
+      const temperature = parseFloat(document.getElementById('vTemperature').value);
+
+      const query = `
+        mutation UpdateVitals($patientId: ID!, $heartRate: Int!, $temperature: Float!) {
+          updateVitals(patientId: $patientId, heartRate: $heartRate, temperature: $temperature) {
+            success
+            message
+          }
+        }
+      `;
+
+      try {
+        const res = await fetch('/graphql', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query,
+            variables: { patientId, heartRate, temperature }
+          })
+        });
+        const data = await res.json();
+        showResponse('vitalsResponse', data);
+        
+        // Save to local chart history
+        addVitalsToHistory(patientId, heartRate, temperature);
+
+        setTimeout(() => {
+          fetchDoctorDashboard();
+          fetchActiveAlerts();
+        }, 800);
+      } catch (err) {
+        showResponse('vitalsResponse', { error: err.message });
+      }
+    });
+
+    // 4. Fetch Doctor Dashboard (GraphQL Query)
+    async function fetchDoctorDashboard() {
+      const doctorId = document.getElementById('dashDoctor').value;
+      const query = `
+        query GetDoctorDashboard($doctorId: ID!) {
+          getDoctorDashboard(doctorId: $doctorId) {
+            doctor_name
+            appointments {
+              id
+              date
+              time
+              status
+              patient {
+                id
+                name
+                medical_history
+                heart_rate
+                temperature
+              }
+            }
+          }
+        }
+      `;
+
+      try {
+        const res = await fetch('/graphql', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, variables: { doctorId } })
+        });
+        const result = await res.json();
+        const listDiv = document.getElementById('apptList');
+        
+        if (result.errors) {
+          listDiv.innerHTML = `<p style="color: var(--danger)">Erreur: ${result.errors[0].message}</p>`;
+          return;
+        }
+
+        const data = result.data.getDoctorDashboard;
+        const appts = data.appointments;
+        
+        if (appts.length === 0) {
+          listDiv.innerHTML = `<p style="color: var(--text-muted); padding: 1rem;">Aucun rendez-vous planifié aujourd'hui pour ${data.doctor_name}.</p>`;
+          return;
+        }
+
+        let html = '';
+        appts.forEach(appt => {
+          const pat = appt.patient || { name: 'Inconnu', heart_rate: 80, temperature: 37.0, medical_history: 'N/A' };
+          
+          let hrClass = 'good';
+          let hrIcon = 'fa-heart';
+          if (pat.heart_rate > 120 || pat.heart_rate < 50) {
+            hrClass = 'alert';
+            hrIcon = 'fa-triangle-exclamation';
+          } else if (pat.heart_rate > 100 || pat.heart_rate < 60) {
+            hrClass = 'warn';
+          }
+
+          let tempClass = 'good';
+          if (pat.temperature > 39.0 || pat.temperature < 35.0) {
+            tempClass = 'alert';
+          } else if (pat.temperature > 37.5 || pat.temperature < 36.0) {
+            tempClass = 'warn';
+          }
+
+          html += `
+            <div class="inner-card" style="cursor: pointer;" onclick="selectPatientForChart('${appt.patient_id}', '${pat.name}')">
+              <div class="inner-info">
+                <h4>${pat.name} <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: normal;">(ID: ${appt.patient_id})</span></h4>
+                <p><i class="fa-solid fa-clock"></i> <b>${appt.time}</b> | Dossier : ${pat.medical_history}</p>
+                <div class="vitals-row">
+                  <span class="vital-pill ${hrClass}"><i class="fa-solid ${hrIcon}"></i> ${pat.heart_rate} bpm</span>
+                  <span class="vital-pill ${tempClass}"><i class="fa-solid fa-thermometer"></i> ${pat.temperature} °C</span>
+                </div>
+              </div>
+              <div>
+                <button class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.75rem; border-color: rgba(239, 68, 68, 0.2); color: var(--danger);" 
+                  onclick="event.stopPropagation(); cancelAppointment('${appt.id}');">
+                  Annuler
+                </button>
+              </div>
+            </div>
+          `;
+        });
+        listDiv.innerHTML = html;
+      } catch (err) {
+        document.getElementById('apptList').innerHTML = `<p style="color: var(--danger)">Erreur réseau: ${err.message}</p>`;
+      }
+    }
+
+    // Cancel Appointment
+    async function cancelAppointment(apptId) {
+      if (!confirm("Annuler ce rendez-vous ?")) return;
+      try {
+        const res = await fetch(`/api/appointments/${apptId}`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+        alert(data.message || "Rendez-vous annulé.");
+        fetchDoctorDashboard();
+      } catch (err) {
+        alert("Erreur: " + err.message);
+      }
+    }
+
+    // 5. Fetch Active Alerts (RxDB / gRPC)
+    let alertIds = new Set();
+
+    async function fetchActiveAlerts() {
+      const query = `
+        query GetActiveAlerts {
+          getActiveAlerts {
+            id
+            patient_id
+            patient_name
+            heart_rate
+            temperature
+            severity
+            timestamp
+            message
+          }
+        }
+      `;
+
+      try {
+        const res = await fetch('/graphql', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query })
+        });
+        const result = await res.json();
+        const listDiv = document.getElementById('alertsList');
+        
+        if (result.errors) {
+          listDiv.innerHTML = `<p style="color: var(--danger)">Erreur: ${result.errors[0].message}</p>`;
+          return;
+        }
+
+        const alerts = result.data.getActiveAlerts;
+        if (alerts.length === 0) {
+          listDiv.innerHTML = `<p style="color: var(--text-muted); padding: 1rem;">Aucune alerte d'urgence active détectée.</p>`;
+          return;
+        }
+
+        let html = '';
+        alerts.forEach(alert => {
+          const isWarning = alert.severity === 'WARNING';
+          
+          // Trigger Toast for new alerts
+          if (!alertIds.has(alert.id)) {
+            alertIds.add(alert.id);
+            triggerToast(`${alert.patient_name} : ${alert.message}`);
+          }
+
+          html += `
+            <div class="danger-card ${isWarning ? 'warning-level' : ''}">
+              <div class="danger-header">
+                <span class="danger-title">
+                  <i class="fa-solid fa-triangle-exclamation"></i> ${alert.severity} : ${alert.patient_name}
+                </span>
+                <span class="danger-time">${new Date(alert.timestamp).toLocaleTimeString()}</span>
+              </div>
+              <div class="danger-body">
+                <p><b>ID Patient :</b> ${alert.patient_id} | <b>Pouls :</b> ${alert.heart_rate} bpm | <b>Température :</b> ${alert.temperature}°C</p>
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.25rem;">${alert.message}</p>
+              </div>
+            </div>
+          `;
+        });
+        listDiv.innerHTML = html;
+      } catch (err) {
+        document.getElementById('alertsList').innerHTML = `<p style="color: var(--danger)">Erreur: ${err.message}</p>`;
+      }
+    }
+
+    function triggerToast(message) {
+      const toast = document.getElementById('alertToast');
+      document.getElementById('toastMessage').textContent = message;
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 5000);
+    }
+
+    // --- INITIAL LOADING ---
+    fetchDoctorDashboard();
+    fetchActiveAlerts();
+    
+    // Auto refresh lists every 3 seconds
+    setInterval(fetchActiveAlerts, 3000);
+  </script>
+</body>
+</html>

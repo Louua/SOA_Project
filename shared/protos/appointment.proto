@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package clinic;
+
+service AppointmentService {
+  rpc CreateAppointment (CreateAppointmentRequest) returns (AppointmentResponse);
+  rpc CancelAppointment (CancelAppointmentRequest) returns (CancelAppointmentResponse);
+  rpc GetAppointmentsByDoctor (DoctorRequest) returns (DoctorAppointmentsResponse);
+  rpc GetAllAppointments (Empty) returns (AppointmentsResponse);
+}
+
+message Empty {}
+
+message AppointmentsResponse {
+  repeated AppointmentResponse appointments = 1;
+}
+
+message CreateAppointmentRequest {
+  string doctor_id = 1;
+  string patient_id = 2;
+  string date = 3;
+  string time = 4;
+}
+
+message AppointmentResponse {
+  string id = 1;
+  string doctor_id = 2;
+  string patient_id = 3;
+  string date = 4;
+  string time = 5;
+  string status = 6;
+}
+
+message CancelAppointmentRequest {
+  string id = 1;
+}
+
+message CancelAppointmentResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message DoctorRequest {
+  string doctor_id = 1;
+}
+
+message DoctorAppointmentsResponse {
+  string doctor_name = 1;
+  repeated AppointmentResponse appointments = 2;
+}

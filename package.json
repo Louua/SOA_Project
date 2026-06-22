@@ -1,0 +1,20 @@
+{
+  "name": "smartclinic-root",
+  "version": "1.0.0",
+  "description": "SmartClinic Root Project",
+  "private": true,
+  "workspaces": [
+    "api-gateway",
+    "patient-service",
+    "appointment-service",
+    "emergency-service"
+  ],
+  "scripts": {
+    "install-all": "npm install",
+    "start": "concurrently \"npm run start --workspace=patient-service\" \"npm run start --workspace=appointment-service\" \"npm run start --workspace=emergency-service\" \"npm run start --workspace=api-gateway\"",
+    "test-flow": "node test-scenarios.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package clinic;
+
+service EmergencyService {
+  rpc GetActiveAlerts (Empty) returns (AlertsResponse);
+}
+
+message Empty {}
+
+message Alert {
+  string id = 1;
+  string patient_id = 2;
+  int32 heart_rate = 3;
+  float temperature = 4;
+  string severity = 5;
+  string timestamp = 6;
+  string message = 7;
+  string patient_name = 8;
+}
+
+message AlertsResponse {
+  repeated Alert alerts = 1;
+}

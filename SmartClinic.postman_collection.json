@@ -1,0 +1,364 @@
+{
+	"info": {
+		"_postman_id": "a9a3b610-827b-4024-aa68-154dfc2f0f42",
+		"name": "SmartClinic 🏥",
+		"description": "Collection Postman complète pour tester toutes les APIs REST et GraphQL du projet SmartClinic (Port 3000).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. REST APIs",
+			"item": [
+				{
+					"name": "Créer un Patient",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Sarah Connor\",\n  \"medical_history\": \"Légère anémie, exposition chronique au stress\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/patients",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"patients"
+							]
+						},
+						"description": "Crée un nouveau patient et retourne son ID (ex: p1)."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtenir les détails d'un Patient",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/patients/p1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"patients",
+								"p1"
+							]
+						},
+						"description": "Récupère les détails d'un patient par son ID (remplacez p1 par l'ID réel)."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtenir tous les Patients",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/patients",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"patients"
+							]
+						},
+						"description": "Récupère tous les patients enregistrés dans la clinique."
+					},
+					"response": []
+				},
+				{
+					"name": "Créer un Rendez-vous",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"doctor_id\": \"d1\",\n  \"patient_id\": \"p1\",\n  \"date\": \"2026-06-22\",\n  \"time\": \"11:15\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/appointments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"appointments"
+							]
+						},
+						"description": "Planifie un rendez-vous pour un médecin et un patient (remplacez p1 par l'ID réel)."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtenir tous les Rendez-vous",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/appointments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"appointments"
+							]
+						},
+						"description": "Récupère tous les rendez-vous enregistrés dans la clinique."
+					},
+					"response": []
+				},
+				{
+					"name": "Annuler un Rendez-vous",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/appointments/a1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"appointments",
+								"a1"
+							]
+						},
+						"description": "Annule un rendez-vous par son ID (remplacez a1 par l'ID réel)."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtenir toutes les Alertes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/alerts",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"alerts"
+							]
+						},
+						"description": "Récupère la liste de toutes les alertes critiques actives générées."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. GraphQL APIs",
+			"item": [
+				{
+					"name": "Dashboard Médecin (Query)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetDoctorDashboard($doctorId: ID!) {\n  getDoctorDashboard(doctorId: $doctorId) {\n    doctor_name\n    appointments {\n      id\n      date\n      time\n      status\n      patient {\n        id\n        name\n        medical_history\n        heart_rate\n        temperature\n      }\n    }\n  }\n}",
+								"variables": "{\n  \"doctorId\": \"d1\"\n}"
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"graphql"
+							]
+						},
+						"description": "Récupère le dashboard du médecin incluant ses rendez-vous et les données patients associées."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtenir tous les Patients (Query)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetAllPatients {\n  getAllPatients {\n    id\n    name\n    medical_history\n    heart_rate\n    temperature\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"graphql"
+							]
+						},
+						"description": "Récupère la liste complète des patients via GraphQL."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtenir tous les Rendez-vous (Query)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetAllAppointments {\n  getAllAppointments {\n    id\n    doctor_id\n    patient_id\n    date\n    time\n    status\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"graphql"
+							]
+						},
+						"description": "Récupère la liste complète des rendez-vous via GraphQL."
+					},
+					"response": []
+				},
+				{
+					"name": "Mettre à jour les Constantes (Mutation)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation UpdateVitals($patientId: ID!, $heartRate: Int!, $temperature: Float!) {\n  updateVitals(patientId: $patientId, heartRate: $heartRate, temperature: $temperature) {\n    success\n    message\n  }\n}",
+								"variables": "{\n  \"patientId\": \"p1\",\n  \"heartRate\": 135,\n  \"temperature\": 39.5\n}"
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"graphql"
+							]
+						},
+						"description": "Met à jour les constantes vitale d'un patient. Des valeurs élevées (ex: 135 bpm, 39.5°C) déclenchent automatiquement une alerte d'urgence dans Emergency-Service."
+					},
+					"response": []
+				},
+				{
+					"name": "Alertes d'Urgence Actives (Query)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetActiveAlerts {\n  getActiveAlerts {\n    id\n    patient_id\n    patient_name\n    heart_rate\n    temperature\n    severity\n    timestamp\n    message\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"graphql"
+							]
+						},
+						"description": "Récupère les alertes d'urgence actives en temps réel depuis le service d'urgence (RxDB)."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
